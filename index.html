@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Lucia Photo Booth V7.1</title>
+<title>Lucia Photo Booth V7.2</title>
 <style>
 :root{--pink:#efd1d3;--sage:#b9c5ad;--ink:#4c3d3a;--bg:#fff9f7}
 *{box-sizing:border-box}
@@ -80,6 +80,7 @@ Thank you for celebrating with Lucia! Tap the button below,
 select Messages, and send your photos to your own phone number.
 </p>
 
+<p id="backupStatus" class="notice" role="status" style="text-align:center;max-width:520px"></p>
 <div class="row">
 <button id="share">📱 Send Me My Photos</button>
 <button id="reset" class="ghost">New Session</button>
@@ -139,6 +140,7 @@ placeholder="https://script.google.com/macros/s/.../exec"
 style="width:100%;padding:12px">
 <button id="saveConnection" class="alt">Save Backup Connection</button>
 <p id="connectionStatus" class="mini"></p>
+<p class="mini">The photo screen will show whether the Drive backup succeeded or failed.</p>
 </div>
 
 <div class="row">
@@ -306,7 +308,7 @@ function capture(){
   sx=(vw-sw)/2;
  }else{
   sh=vw/displayRatio;
-  sy=(vh-sh)/2;
+  sy=(vh-sw)/2;
  }
 
  c.width=Math.round(sw);
@@ -364,7 +366,14 @@ async function compose(){
   );
  }
 
- $("#final").src=c.toDataURL("image/jpeg",.95);
+ const finished=$("#final");
+ finished.src=c.toDataURL("image/jpeg",.95);
+ if(!finished.complete || !finished.naturalWidth){
+  await new Promise((resolve,reject)=>{
+   finished.onload=()=>{finished.onload=null;finished.onerror=null;resolve()};
+   finished.onerror=()=>{finished.onload=null;finished.onerror=null;reject(Error("Finished image failed to load"))};
+  });
+ }
 }
 
 const getEndpoint=()=>
@@ -375,34 +384,20 @@ function newId(){
  Math.random().toString(36).slice(2,8);
 }
 
-// V7.1: Make a smaller JPEG for Google Drive only.
-// Messages sharing continues using the original canvas.
 function backupImage(){
  const finished = $("#final");
-
  if (!finished.complete || !finished.naturalWidth) {
   throw new Error("Finished photo is not ready.");
  }
-
  const maxWidth = 1600;
- const scale = Math.min(
-  1,
-  maxWidth / finished.naturalWidth
- );
-
+ const scale = Math.min(1, maxWidth / finished.naturalWidth);
  const canvas = document.createElement("canvas");
  canvas.width = Math.round(finished.naturalWidth * scale);
  canvas.height = Math.round(finished.naturalHeight * scale);
-
  const ctx = canvas.getContext("2d");
  ctx.fillStyle = "#ffffff";
  ctx.fillRect(0, 0, canvas.width, canvas.height);
- ctx.drawImage(
-  finished,
-  0, 0,
-  canvas.width, canvas.height
- );
-
+ ctx.drawImage(finished, 0, 0, canvas.width, canvas.height);
  return canvas.toDataURL("image/jpeg", 0.82).split(",")[1];
 }
 
@@ -486,22 +481,25 @@ function sendToDrive(payload,waitMs=45000){
 async function startBackup(){
  currentPhotoId=newId();
  backupPending=true;
-
+ const status=$("#backupStatus");
+ status.className="notice";
+ status.textContent="⏳ Saving a backup to Google Drive… Please keep this page open.";
  $("#requestStatus").textContent="";
  $("#helpStatus").textContent="";
  $("#guestPhone").value="";
-
  try{
-  await sendToDrive({
+  const encoded=backupImage();
+  const response=await sendToDrive({
    action:"photo",
    photoId:currentPhotoId,
-   image:backupImage()
-  });
+   image:encoded
+  },60000);
+  status.className="notice good";
+  status.textContent="✓ Google Drive backup confirmed. Photo ID: "+currentPhotoId;
  }catch(e){
-  console.warn(
-   "Backup confirmation unavailable:",
-   e.message
-  );
+  console.error("Google Drive backup failed:",e);
+  status.className="notice bad";
+  status.textContent="⚠️ Google Drive backup not confirmed ("+e.message+"). The Messages photo is still available. Photo ID: "+currentPhotoId;
  }finally{
   backupPending=false;
  }
@@ -615,6 +613,7 @@ $("#reset").onclick=()=>{
  )return;
 
  photos=[];
+ $("#backupStatus").textContent="";
  home();
  show("home");
 };
