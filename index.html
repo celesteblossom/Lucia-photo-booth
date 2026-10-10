@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Lucia Photo Booth V6.8</title>
+<title>Lucia Photo Booth V7.0</title>
 <style>
 :root{--pink:#efd1d3;--sage:#b9c5ad;--ink:#4c3d3a;--bg:#fff9f7}
 *{box-sizing:border-box}
@@ -40,6 +40,7 @@ input[type=tel]{font:inherit;font-size:18px;padding:14px;border:1px solid #d8b9b
 .good{color:#28693d}
 .bad{color:#a03434}
 .mini{font-size:13px}
+#requestStatus{min-height:3em;font-weight:600}
 @media(max-width:700px){
 .grid{grid-template-columns:1fr}
 .card{display:grid;grid-template-columns:105px 1fr;align-items:center;gap:12px}
@@ -71,34 +72,36 @@ input[type=tel]{font:inherit;font-size:18px;padding:14px;border:1px solid #d8b9b
 </section>
 
 <section id="done" class="screen">
-<h2>Your photo strip ✨</h2>
+<h2>Your Photos Are Ready! ✨</h2>
 <img id="final">
 
+<p class="notice" style="text-align:center;max-width:520px">
+Thank you for celebrating with Lucia! Tap the button below,
+select Messages, and send your photos to your own phone number.
+</p>
+
 <div class="row">
-<button id="share">📱 Text Photos</button>
+<button id="share">📱 Send Me My Photos</button>
 <button id="reset" class="ghost">New Session</button>
 </div>
 
-<p class="mini" style="text-align:center;max-width:520px">
-Tap Text Photos, choose Messages, enter your phone number, and send the photo.
-</p>
-
 <div class="panel">
-<h3>Didn't get your photos?</h3>
+<h3>Trouble Sending Your Photos? 💌</h3>
 <p class="notice">
-Leave your phone number and we'll try to send your photos in the days following Lucia's celebration. 💌
+Please try the <strong>Send Me My Photos</strong> button first.
+If your photos aren't going through, enter your phone number below
+and we'll send them to you after the celebration.
 </p>
 
-<input id="guestPhone" type="tel" inputmode="tel" autocomplete="tel"
-placeholder="(555) 123-4567" aria-label="Phone number">
+<input id="guestPhone" type="tel" inputmode="tel"
+autocomplete="tel" placeholder="(555) 123-4567"
+aria-label="Phone number">
 
-<p class="mini">
-Only enter your number if you'd like us to contact you about these photos.
-</p>
+<button id="requestPhotos" style="margin-top:14px">
+Receive My Photos Later
+</button>
 
-<button id="requestPhotos">Request My Photos</button>
-<p id="requestStatus" class="notice" role="status"
-style="min-height:3em;font-weight:600"></p>
+<p id="requestStatus" class="notice" role="status"></p>
 </div>
 
 <button id="help" class="ghost">🆘 Need Help?</button>
@@ -372,7 +375,6 @@ function newId(){
  Math.random().toString(36).slice(2,8);
 }
 
-// V6.7/V6.8: No separate backup resizing.
 function backupImage(){
  const finished=$("#final").src;
 
@@ -484,8 +486,8 @@ async function startBackup(){
  }
 }
 
-// V6.8: Show the thank-you immediately.
-// Continue sending the phone number to Google Sheets.
+// Thank-you appears immediately and remains visible,
+// even if Safari cannot confirm the Sheets response.
 $("#requestPhotos").onclick=async()=>{
  if(requestPending)return;
 
@@ -503,13 +505,19 @@ $("#requestPhotos").onclick=async()=>{
   return;
  }
 
+ if(!getEndpoint()){
+  status.className="notice bad";
+  status.textContent=
+   "Photo requests are unavailable. Please ask the host for help.";
+  return;
+ }
+
  requestPending=true;
  btn.disabled=true;
 
- // Show the message immediately, without waiting for Safari.
  status.className="notice good";
  status.textContent=
-  "💌 Thank you! Your photo request has been submitted. We'll try to send your photos to the number provided in the days following Lucia's celebration. Thank you for celebrating with us! 🌸";
+  "💗 Thank you for submitting! We'll send your photos to you in the next couple of days. Thank you for celebrating with Lucia! ✨";
 
  try{
   await sendToDrive({
@@ -518,20 +526,13 @@ $("#requestPhotos").onclick=async()=>{
    phone:phone
   },45000);
 
-  // Request confirmed by Google.
   $("#guestPhone").value="";
 
  }catch(e){
-  // Safari timeouts are ambiguous: the row may already exist.
-  if(/timed out/i.test(e.message)){
-   status.className="notice";
-   status.textContent=
-    "💌 Thank you! Your request was submitted, but we couldn't verify it on this device. Please ask the host to check the follow-up list before you leave.";
-  }else{
-   status.className="notice bad";
-   status.textContent=
-    "We couldn't confirm your photo request. Please ask the host to record your phone number before you leave.";
-  }
+  console.warn(
+   "Photo request confirmation unavailable:",
+   e.message
+  );
  }finally{
   requestPending=false;
   btn.disabled=false;
