@@ -58,3 +58,4 @@ $$(".slot").forEach(el=>{let mode=null,sx,sy,start;el.addEventListener("pointerd
 $("#save").onclick=()=>{T[edit].name=$("#tname").value.trim()||`Template ${edit+1}`;try{localStorage.setItem("luciaPB2",JSON.stringify(T));alert("Saved on this iPad/browser.")}catch(e){alert("The template file is too large for browser storage. Export a smaller JPG or PNG and try again.")}home()};
 home();
 </script></body></html>
+
