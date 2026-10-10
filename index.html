@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Lucia Photo Booth V7.3</title>
+<title>Lucia Photo Booth V7.4</title>
 
 <style>
 :root{
@@ -212,12 +212,6 @@ input[type=tel]{
  font-weight:600;
 }
 
-#backupStatus{
- text-align:center;
- max-width:520px;
- font-size:13px;
-}
-
 @media(max-width:700px){
  .grid{grid-template-columns:1fr}
  .card{
@@ -270,8 +264,6 @@ One tap takes all three photos automatically.
 Thank you for celebrating with Lucia! Tap the button below,
 select Messages, and send your photos to your own phone number.
 </p>
-
-<p id="backupStatus" class="notice" role="status"></p>
 
 <div class="row">
  <button id="share">📱 Send Me My Photos</button>
@@ -371,8 +363,8 @@ Save Backup Connection
 <p id="connectionStatus" class="mini"></p>
 
 <p class="mini">
-V7.3 creates the finished photo at a controlled resolution
-before sending it to Google Drive.
+Backups run automatically in the background.
+Guest-facing backup messages are hidden.
 </p>
 </div>
 
@@ -399,9 +391,6 @@ const $$=q=>[...document.querySelectorAll(q)];
 const TEMPLATE_KEY="luciaPB2";
 const ENDPOINT_KEY="luciaPB6_endpoint";
 
-// V7.3:
-// Limit the longest side of the COMPOSITION canvas.
-// This happens before adding the photos, not afterward.
 const MAX_OUTPUT_SIDE=2000;
 const OUTPUT_QUALITY=0.85;
 
@@ -453,8 +442,6 @@ let currentPhotoId="";
 let backupPending=false;
 let requestPending=false;
 
-// The same completed JPEG is used for both
-// Messages and Google Drive.
 let finishedPhotoData="";
 let finishedPhotoBlob=null;
 
@@ -574,9 +561,7 @@ async function sequence(){
 
   show("done");
 
-  // This is intentionally not awaited.
-  // Guests can share their photo while
-  // the Google Drive backup runs.
+  // Google Drive backup runs silently.
   startBackup();
 
  }catch(e){
@@ -676,9 +661,6 @@ function cover(ctx,img,x,y,w,h){
  );
 }
 
-// Converts a canvas to a JPEG Blob.
-// Avoids creating an additional full-size
-// Base64 copy during image composition.
 function canvasToBlob(canvas,quality){
  return new Promise((resolve,reject)=>{
   canvas.toBlob(blob=>{
@@ -704,9 +686,6 @@ function blobToDataURL(blob){
  });
 }
 
-// V7.3 MAIN FIX:
-// Scale the background canvas BEFORE
-// adding the three captured photos.
 async function compose(){
  const template=T[chosen];
 
@@ -749,9 +728,6 @@ async function compose(){
 
  const canvas=$("#canvas");
 
- // Setting the canvas dimensions resets
- // its drawing context and ensures the
- // composition uses the reduced size.
  canvas.width=outputWidth;
  canvas.height=outputHeight;
 
@@ -768,16 +744,12 @@ async function compose(){
   0,0,outputWidth,outputHeight
  );
 
- // Draw the complete template at the
- // final resolution, not its original size.
  ctx.drawImage(
   background,
   0,0,
   outputWidth,outputHeight
  );
 
- // Slot positions remain proportional
- // to the original template.
  for(let i=0;i<3;i++){
   const image=await load(photos[i]);
   const slot=template.slots[i];
@@ -792,7 +764,6 @@ async function compose(){
   );
  }
 
- // Create the finished JPEG only once.
  const blob=await canvasToBlob(
   canvas,
   OUTPUT_QUALITY
@@ -808,14 +779,13 @@ async function compose(){
  const preview=$("#final");
  preview.src=finishedPhotoData;
 
- // Confirm Safari can decode the image.
  const decoded=await load(finishedPhotoData);
 
  if(!decoded.naturalWidth||!decoded.naturalHeight){
   throw Error("Finished photo could not be decoded");
  }
 
- console.log("V7.3 photo composition:",{
+ console.log("V7.4 photo composition:",{
   originalWidth,
   originalHeight,
   outputWidth,
@@ -834,8 +804,6 @@ function newId(){
   Math.random().toString(36).slice(2,8);
 }
 
-// Uses the exact JPEG already created
-// for the finished preview and Messages.
 function backupImage(){
  if(!finishedPhotoData){
   throw Error("Finished photo is not ready");
@@ -974,12 +942,6 @@ async function startBackup(){
  currentPhotoId=newId();
  backupPending=true;
 
- const status=$("#backupStatus");
-
- status.className="notice";
- status.textContent=
-  "⏳ Saving a backup to Google Drive… Please keep this page open.";
-
  $("#requestStatus").textContent="";
  $("#helpStatus").textContent="";
  $("#guestPhone").value="";
@@ -991,7 +953,6 @@ async function startBackup(){
 
   const bytes=finishedPhotoBlob.size;
 
-  // Match the size limits in Code.gs.
   if(bytes<5000||bytes>9000000){
    throw Error(
     "Image size outside Google Drive limits: "+
@@ -1007,24 +968,20 @@ async function startBackup(){
    image:encoded
   },60000);
 
-  status.className="notice good";
-  status.textContent=
-   "✓ Google Drive backup confirmed. Photo ID: "+
-   currentPhotoId;
-
- }catch(error){
-  console.error(
-   "Google Drive backup problem:",
-   error
+  console.log(
+   "Google Drive backup confirmed:",
+   currentPhotoId
   );
 
-  status.className="notice bad";
-
-  status.textContent=
-   "⚠️ Google Drive backup not confirmed ("+
-   error.message+
-   "). Your photo is still available through Messages. Photo ID: "+
-   currentPhotoId;
+ }catch(error){
+  // No guest-facing warning.
+  // A timeout can occur even when the
+  // image was successfully saved.
+  console.warn(
+   "Google Drive backup not confirmed:",
+   currentPhotoId,
+   error.message
+  );
 
  }finally{
   backupPending=false;
@@ -1067,7 +1024,6 @@ $("#requestPhotos").onclick=async()=>{
  requestPending=true;
  button.disabled=true;
 
- // Keep the approved immediate message.
  status.className="notice good";
  status.textContent=
   "💗 Thank you for submitting! We'll send your photos to you in the next couple of days. Thank you for celebrating with Lucia! ✨";
@@ -1166,15 +1122,10 @@ $("#reset").onclick=()=>{
  finishedPhotoData="";
  finishedPhotoBlob=null;
 
- $("#backupStatus").textContent="";
-
  home();
  show("home");
 };
 
-// Share the same JPEG used for the Drive
-// backup, rather than exporting the
-// composition canvas a second time.
 $("#share").onclick=async()=>{
  if(!finishedPhotoBlob){
   alert("Photo is not ready yet.");
