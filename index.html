@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Lucia Photo Booth V6.6</title>
+<title>Lucia Photo Booth V6.8</title>
 <style>
 :root{--pink:#efd1d3;--sage:#b9c5ad;--ink:#4c3d3a;--bg:#fff9f7}
 *{box-sizing:border-box}
@@ -20,7 +20,7 @@ button.ghost{background:#fff;border:1px solid #dbcaca}
 .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;width:min(100%,1000px)}
 .card{background:#fff;padding:12px;border-radius:22px;text-align:center}
 .card img{width:100%;aspect-ratio:2/3;object-fit:contain;background:#f3eeee;border-radius:14px}
-video{width:min(92vw,620px);aspect-ratio:4/3;max-height:68vh;object-fit:cover;object-position:center;border-radius:24px;background:#111;transform:scaleX(-1)}
+video{width:min(92vw,620px);aspect-ratio:4/3;max-height:68vh;object-fit:cover;border-radius:24px;background:#111;transform:scaleX(-1)}
 #flash{position:absolute;inset:0;background:white;opacity:0;pointer-events:none;transition:opacity .18s}
 #flash.pop{opacity:.92;transition:none}
 #count{position:absolute;font-size:22vw;font-weight:900;color:white;text-shadow:0 3px 22px #0008}
@@ -67,7 +67,7 @@ input[type=tel]{font:inherit;font-size:18px;padding:14px;border:1px solid #d8b9b
 <button id="start">Start Photo Sequence</button>
 <button id="back" class="ghost">Back</button>
 </div>
-<p class="hint">Frame yourself inside the camera box. One tap takes all three photos automatically.</p>
+<p class="hint">One tap takes all three photos automatically.</p>
 </section>
 
 <section id="done" class="screen">
@@ -86,18 +86,19 @@ Tap Text Photos, choose Messages, enter your phone number, and send the photo.
 <div class="panel">
 <h3>Didn't get your photos?</h3>
 <p class="notice">
-We're sorry your pictures didn't come through!
-Leave your phone number and we'll try to send them in the days following Lucia's celebration. 💌
+Leave your phone number and we'll try to send your photos in the days following Lucia's celebration. 💌
 </p>
 
-<input id="guestPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(555) 123-4567" aria-label="Phone number">
+<input id="guestPhone" type="tel" inputmode="tel" autocomplete="tel"
+placeholder="(555) 123-4567" aria-label="Phone number">
 
 <p class="mini">
 Only enter your number if you'd like us to contact you about these photos.
 </p>
 
 <button id="requestPhotos">Request My Photos</button>
-<p id="requestStatus" class="notice" role="status"></p>
+<p id="requestStatus" class="notice" role="status"
+style="min-height:3em;font-weight:600"></p>
 </div>
 
 <button id="help" class="ghost">🆘 Need Help?</button>
@@ -130,7 +131,9 @@ Only enter your number if you'd like us to contact you about these photos.
 <div class="panel" style="margin:16px 0">
 <h3>Private Google Drive backup</h3>
 <p class="mini">Paste your deployed Google Apps Script Web App URL.</p>
-<input id="scriptUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;padding:12px">
+<input id="scriptUrl" type="url"
+placeholder="https://script.google.com/macros/s/.../exec"
+style="width:100%;padding:12px">
 <button id="saveConnection" class="alt">Save Backup Connection</button>
 <p id="connectionStatus" class="mini"></p>
 </div>
@@ -162,10 +165,12 @@ const blank=()=>({
 
 let T;
 try{
- T=JSON.parse(localStorage.getItem("luciaPB2"))||[blank(),blank(),blank()];
+ T=JSON.parse(localStorage.getItem("luciaPB2"))||
+ [blank(),blank(),blank()];
 }catch(e){
  T=[blank(),blank(),blank()];
 }
+
 T.forEach((t,i)=>{
  if(t.name==="Template")t.name=`Template ${i+1}`;
 });
@@ -175,16 +180,30 @@ let currentPhotoId="",backupPending=false;
 let requestPending=false;
 
 function show(id){
- $$(".screen").forEach(x=>x.classList.toggle("on",x.id===id));
+ $$(".screen").forEach(x=>
+  x.classList.toggle("on",x.id===id)
+ );
 }
 
 function home(){
  let c=$("#cards");
  c.innerHTML="";
+
  T.forEach((t,i)=>{
   let d=document.createElement("div");
   d.className="card";
-  d.innerHTML=`${t.src?`<img src="${t.src}">`:`<div style="aspect-ratio:2/3;display:grid;place-items:center;background:#f3eeee;border-radius:14px">No design yet</div>`}<div><h3>${t.name}</h3><button ${t.src?"":"disabled"}>Choose</button></div>`;
+
+  d.innerHTML=`
+   ${t.src
+    ? `<img src="${t.src}">`
+    : `<div style="aspect-ratio:2/3;display:grid;place-items:center;background:#f3eeee;border-radius:14px">No design yet</div>`
+   }
+   <div>
+    <h3>${t.name}</h3>
+    <button ${t.src?"":"disabled"}>Choose</button>
+   </div>
+  `;
+
   d.querySelector("button").onclick=()=>openCam(i);
   c.appendChild(d);
  });
@@ -196,6 +215,7 @@ async function openCam(i){
  show("cam");
  $("#start").disabled=false;
  $("#status").textContent="Get ready!";
+
  try{
   stream=await navigator.mediaDevices.getUserMedia({
    video:{
@@ -206,10 +226,13 @@ async function openCam(i){
    },
    audio:false
   });
+
   $("#video").srcObject=stream;
   await $("#video").play();
+
  }catch(e){
-  $("#status").textContent="Camera could not start. Open the HTTPS website in Safari and allow Camera access.";
+  $("#status").textContent=
+   "Camera could not start. Open the HTTPS website in Safari and allow Camera access.";
   $("#start").disabled=true;
  }
 }
@@ -225,9 +248,11 @@ const wait=n=>new Promise(r=>setTimeout(r,n));
 
 async function sequence(){
  if(busy)return;
+
  busy=true;
  $("#start").disabled=true;
  photos=[];
+
  try{
   for(let p=0;p<3;p++){
    for(let n=3;n>=1;n--){
@@ -235,19 +260,24 @@ async function sequence(){
     $("#count").textContent=n;
     await wait(1000);
    }
+
    $("#count").textContent="";
    await wait(120);
    capture();
+
    $("#flash").classList.add("pop");
    await wait(90);
    $("#flash").classList.remove("pop");
+
    $("#status").textContent="✨ Snap!";
    await wait(650);
   }
+
   stop();
   await compose();
   show("done");
   startBackup();
+
  }catch(e){
   $("#status").textContent="Photo error: "+e.message;
   $("#start").disabled=false;
@@ -258,7 +288,10 @@ async function sequence(){
 
 function capture(){
  let v=$("#video");
- if(!v.videoWidth||!v.videoHeight)throw Error("Camera not ready");
+
+ if(!v.videoWidth||!v.videoHeight)
+  throw Error("Camera not ready");
+
  let c=document.createElement("canvas");
  let vw=v.videoWidth,vh=v.videoHeight;
  let displayRatio=v.clientWidth/v.clientHeight;
@@ -275,10 +308,12 @@ function capture(){
 
  c.width=Math.round(sw);
  c.height=Math.round(sh);
+
  let x=c.getContext("2d");
  x.translate(c.width,0);
  x.scale(-1,1);
  x.drawImage(v,sx,sy,sw,sh,0,0,c.width,c.height);
+
  photos.push(c.toDataURL("image/jpeg",.94));
 }
 
@@ -292,7 +327,13 @@ const load=s=>new Promise((r,j)=>{
 function cover(ctx,img,x,y,w,h){
  let r=Math.max(w/img.width,h/img.height);
  let sw=w/r,sh=h/r;
- ctx.drawImage(img,(img.width-sw)/2,(img.height-sh)/2,sw,sh,x,y,w,h);
+
+ ctx.drawImage(
+  img,
+  (img.width-sw)/2,
+  (img.height-sh)/2,
+  sw,sh,x,y,w,h
+ );
 }
 
 async function compose(){
@@ -300,43 +341,48 @@ async function compose(){
  let bg=await load(t.src);
  let c=$("#canvas");
  let x=c.getContext("2d");
+
  c.width=bg.naturalWidth;
  c.height=bg.naturalHeight;
+
  x.clearRect(0,0,c.width,c.height);
  x.drawImage(bg,0,0,c.width,c.height);
 
  for(let i=0;i<3;i++){
   let im=await load(photos[i]);
   let s=t.slots[i];
-  cover(x,im,s.x*c.width,s.y*c.height,s.w*c.width,s.h*c.height);
+
+  cover(
+   x,im,
+   s.x*c.width,
+   s.y*c.height,
+   s.w*c.width,
+   s.h*c.height
+  );
  }
 
  $("#final").src=c.toDataURL("image/jpeg",.95);
 }
 
-const getEndpoint=()=>localStorage.getItem("luciaPB6_endpoint")||"";
+const getEndpoint=()=>
+ localStorage.getItem("luciaPB6_endpoint")||"";
 
 function newId(){
- return "LX-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,8);
+ return "LX-"+Date.now().toString(36)+"-"+
+ Math.random().toString(36).slice(2,8);
 }
 
-// Smaller backup JPEG to reduce upload size.
-// The original canvas remains unchanged for Messages sharing.
+// V6.7/V6.8: No separate backup resizing.
 function backupImage(){
- let original=$("#canvas");
- let c=document.createElement("canvas");
- let scale=Math.min(1,1400/Math.max(original.width,original.height));
- c.width=Math.max(1,Math.round(original.width*scale));
- c.height=Math.max(1,Math.round(original.height*scale));
- let ctx=c.getContext("2d");
- ctx.fillStyle="#ffffff";
- ctx.fillRect(0,0,c.width,c.height);
- ctx.drawImage(original,0,0,c.width,c.height);
- return c.toDataURL("image/jpeg",.78).split(",")[1];
+ const finished=$("#final").src;
+
+ if(!finished.startsWith("data:image/jpeg;base64,")){
+  throw new Error("Finished photo is not ready.");
+ }
+
+ return finished.split(",")[1];
 }
 
-// Google Apps Script receives form posts in a hidden iframe.
-// Safari may not return the confirmation even when Google saves the data.
 function sendToDrive(payload,waitMs=45000){
  return new Promise((resolve,reject)=>{
   let url=getEndpoint();
@@ -353,12 +399,14 @@ function sendToDrive(payload,waitMs=45000){
 
   iframe.name="lucia_upload_"+id;
   iframe.style.display="none";
+
   form.method="POST";
   form.action=url;
   form.target=iframe.name;
   form.style.display="none";
 
   let body={...payload,requestId:id};
+
   for(let [key,value] of Object.entries(body)){
    let input=document.createElement("input");
    input.name=key;
@@ -375,9 +423,12 @@ function sendToDrive(payload,waitMs=45000){
 
   function received(e){
    let d=e.data;
-   if(!d||d.app!=="lucia-v6"||d.requestId!==id)return;
+
+   if(!d||d.app!=="lucia-v6"||d.requestId!==id)
+    return;
 
    let origin=e.origin||"";
+
    if(
     origin!=="null" &&
     origin!=="https://script.google.com" &&
@@ -386,7 +437,10 @@ function sendToDrive(payload,waitMs=45000){
    )return;
 
    cleanup();
-   d.ok?resolve(d):reject(Error(d.error||"Request failed"));
+
+   d.ok
+    ? resolve(d)
+    : reject(Error(d.error||"Request failed"));
   }
 
   window.addEventListener("message",received);
@@ -409,6 +463,7 @@ function sendToDrive(payload,waitMs=45000){
 async function startBackup(){
  currentPhotoId=newId();
  backupPending=true;
+
  $("#requestStatus").textContent="";
  $("#helpStatus").textContent="";
  $("#guestPhone").value="";
@@ -420,28 +475,41 @@ async function startBackup(){
    image:backupImage()
   });
  }catch(e){
-  // No guest-facing warning.
-  // A timeout does not prove the photo failed to upload.
-  console.warn("Backup confirmation unavailable:",e.message);
+  console.warn(
+   "Backup confirmation unavailable:",
+   e.message
+  );
  }finally{
   backupPending=false;
  }
 }
 
+// V6.8: Show the thank-you immediately.
+// Continue sending the phone number to Google Sheets.
 $("#requestPhotos").onclick=async()=>{
  if(requestPending)return;
 
+ const status=$("#requestStatus");
+ const btn=$("#requestPhotos");
  let phone=$("#guestPhone").value.replace(/\D/g,"");
- if(phone.length!==10&&!(phone.length===11&&phone[0]==="1")){
-  $("#requestStatus").textContent="Please enter a valid US phone number.";
+
+ if(
+  phone.length!==10 &&
+  !(phone.length===11&&phone[0]==="1")
+ ){
+  status.className="notice bad";
+  status.textContent=
+   "Please enter a valid US phone number.";
   return;
  }
 
- let btn=$("#requestPhotos");
  requestPending=true;
  btn.disabled=true;
- $("#requestStatus").className="notice";
- $("#requestStatus").textContent="Submitting your request…";
+
+ // Show the message immediately, without waiting for Safari.
+ status.className="notice good";
+ status.textContent=
+  "💌 Thank you! Your photo request has been submitted. We'll try to send your photos to the number provided in the days following Lucia's celebration. Thank you for celebrating with us! 🌸";
 
  try{
   await sendToDrive({
@@ -450,15 +518,20 @@ $("#requestPhotos").onclick=async()=>{
    phone:phone
   },45000);
 
-  $("#requestStatus").className="notice good";
-  $("#requestStatus").textContent=
-   "💌 Thank you! We've received your request. We'll try to send your photos to the number provided in the days following Lucia's celebration. Thank you for celebrating with us! 🌸";
+  // Request confirmed by Google.
   $("#guestPhone").value="";
 
  }catch(e){
-  $("#requestStatus").className="notice";
-  $("#requestStatus").textContent=
-   "💌 Thank you for submitting! We couldn't confirm your request on this device. Please ask the host to check the follow-up list before you leave.";
+  // Safari timeouts are ambiguous: the row may already exist.
+  if(/timed out/i.test(e.message)){
+   status.className="notice";
+   status.textContent=
+    "💌 Thank you! Your request was submitted, but we couldn't verify it on this device. Please ask the host to check the follow-up list before you leave.";
+  }else{
+   status.className="notice bad";
+   status.textContent=
+    "We couldn't confirm your photo request. Please ask the host to record your phone number before you leave.";
+  }
  }finally{
   requestPending=false;
   btn.disabled=false;
@@ -474,34 +547,53 @@ $("#help").onclick=async()=>{
    action:"help",
    photoId:currentPhotoId
   },45000);
-  el.textContent="✓ Help request recorded! Please also wave to the host if you need immediate assistance.";
+
+  el.textContent=
+   "✓ Help request recorded! Please also wave to the host if you need immediate assistance.";
+
  }catch(e){
-  el.textContent="Your help request may have been recorded. Please ask the host directly if you need immediate assistance.";
+  el.textContent=
+   "Your help request may have been recorded. Please ask the host directly if you need immediate assistance.";
  }
 };
 
 $("#saveConnection").onclick=()=>{
  let u=$("#scriptUrl").value.trim();
 
- if(u&&!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec(?:\?.*)?$/.test(u)){
-  $("#connectionStatus").textContent="Please paste the deployed Apps Script /exec URL.";
+ if(
+  u &&
+  !/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec(?:\?.*)?$/.test(u)
+ ){
+  $("#connectionStatus").textContent=
+   "Please paste the deployed Apps Script /exec URL.";
   return;
  }
 
  localStorage.setItem("luciaPB6_endpoint",u);
- $("#connectionStatus").textContent=u?"Connection URL saved. Take a test photo to verify uploads.":"Connection removed.";
+
+ $("#connectionStatus").textContent=
+  u
+   ? "Connection URL saved. Take a test photo to verify uploads."
+   : "Connection removed.";
 };
 
 $("#scriptUrl").value=getEndpoint();
 
 $("#start").onclick=sequence;
+
 $("#back").onclick=()=>{
  stop();
  show("home");
 };
 
 $("#reset").onclick=()=>{
- if(backupPending&&!confirm("The photo is still uploading. Leaving now may interrupt the backup. Continue?"))return;
+ if(
+  backupPending &&
+  !confirm(
+   "The photo is still uploading. Leaving now may interrupt the backup. Continue?"
+  )
+ )return;
+
  photos=[];
  home();
  show("home");
@@ -513,19 +605,29 @@ $("#share").onclick=()=>$("#canvas").toBlob(async b=>{
   return;
  }
 
- let f=new File([b],"lucia-photo-booth.jpg",{type:"image/jpeg"});
+ let f=new File(
+  [b],
+  "lucia-photo-booth.jpg",
+  {type:"image/jpeg"}
+ );
 
- if(navigator.canShare&&navigator.canShare({files:[f]})){
+ if(
+  navigator.canShare &&
+  navigator.canShare({files:[f]})
+ ){
   try{
    await navigator.share({
     files:[f],
     title:"Lucia Ximena Photo Booth"
    });
   }catch(e){
-   if(e.name!=="AbortError")alert("Unable to open sharing. Ask the host for help.");
+   if(e.name!=="AbortError")
+    alert("Unable to open sharing. Ask the host for help.");
   }
  }else{
-  alert("This device cannot share the photo directly. Ask the host for help.");
+  alert(
+   "This device cannot share the photo directly. Ask the host for help."
+  );
  }
 },"image/jpeg",.95);
 
@@ -538,6 +640,7 @@ function loadEditor(){
 
 function positionSlots(){
  let t=T[edit];
+
  $$(".slot").forEach((el,i)=>{
   let s=t.slots[i];
   el.style.left=s.x*100+"%";
@@ -565,12 +668,15 @@ $("#adminDone").onclick=()=>{
 $("#upload").onchange=e=>{
  let f=e.target.files[0];
  if(!f)return;
+
  let r=new FileReader();
+
  r.onload=()=>{
   T[edit].src=r.result;
   $("#bg").src=r.result;
   positionSlots();
  };
+
  r.readAsDataURL(f);
 };
 
@@ -579,10 +685,16 @@ $$(".slot").forEach(el=>{
 
  el.addEventListener("pointerdown",e=>{
   e.preventDefault();
-  mode=e.target.classList.contains("handle")?"resize":"move";
+
+  mode=e.target.classList.contains("handle")
+   ? "resize"
+   : "move";
+
   el.setPointerCapture(e.pointerId);
+
   sx=e.clientX;
   sy=e.clientY;
+
   start={...T[edit].slots[+el.dataset.s]};
  });
 
@@ -595,12 +707,25 @@ $$(".slot").forEach(el=>{
   let dy=(e.clientY-sy)/r.height;
 
   if(mode==="move"){
-   s.x=Math.max(0,Math.min(1-start.w,start.x+dx));
-   s.y=Math.max(0,Math.min(1-start.h,start.y+dy));
+   s.x=Math.max(
+    0,
+    Math.min(1-start.w,start.x+dx)
+   );
+   s.y=Math.max(
+    0,
+    Math.min(1-start.h,start.y+dy)
+   );
   }else{
-   s.w=Math.max(.05,Math.min(1-start.x,start.w+dx));
-   s.h=Math.max(.05,Math.min(1-start.y,start.h+dy));
+   s.w=Math.max(
+    .05,
+    Math.min(1-start.x,start.w+dx)
+   );
+   s.h=Math.max(
+    .05,
+    Math.min(1-start.y,start.h+dy)
+   );
   }
+
   positionSlots();
  });
 
@@ -609,14 +734,23 @@ $$(".slot").forEach(el=>{
 });
 
 $("#save").onclick=()=>{
- T[edit].name=$("#tname").value.trim()||`Template ${edit+1}`;
+ T[edit].name=
+  $("#tname").value.trim()||`Template ${edit+1}`;
 
  try{
-  localStorage.setItem("luciaPB2",JSON.stringify(T));
+  localStorage.setItem(
+   "luciaPB2",
+   JSON.stringify(T)
+  );
+
   alert("Saved on this iPad/browser.");
+
  }catch(e){
-  alert("The template file is too large for browser storage. Export a smaller JPG or PNG and try again.");
+  alert(
+   "The template file is too large for browser storage. Export a smaller JPG or PNG and try again."
+  );
  }
+
  home();
 };
 
