@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Lucia Photo Booth V7.0</title>
+<title>Lucia Photo Booth V7.1</title>
 <style>
 :root{--pink:#efd1d3;--sage:#b9c5ad;--ink:#4c3d3a;--bg:#fff9f7}
 *{box-sizing:border-box}
@@ -375,14 +375,35 @@ function newId(){
  Math.random().toString(36).slice(2,8);
 }
 
+// V7.1: Make a smaller JPEG for Google Drive only.
+// Messages sharing continues using the original canvas.
 function backupImage(){
- const finished=$("#final").src;
+ const finished = $("#final");
 
- if(!finished.startsWith("data:image/jpeg;base64,")){
+ if (!finished.complete || !finished.naturalWidth) {
   throw new Error("Finished photo is not ready.");
  }
 
- return finished.split(",")[1];
+ const maxWidth = 1600;
+ const scale = Math.min(
+  1,
+  maxWidth / finished.naturalWidth
+ );
+
+ const canvas = document.createElement("canvas");
+ canvas.width = Math.round(finished.naturalWidth * scale);
+ canvas.height = Math.round(finished.naturalHeight * scale);
+
+ const ctx = canvas.getContext("2d");
+ ctx.fillStyle = "#ffffff";
+ ctx.fillRect(0, 0, canvas.width, canvas.height);
+ ctx.drawImage(
+  finished,
+  0, 0,
+  canvas.width, canvas.height
+ );
+
+ return canvas.toDataURL("image/jpeg", 0.82).split(",")[1];
 }
 
 function sendToDrive(payload,waitMs=45000){
@@ -486,8 +507,6 @@ async function startBackup(){
  }
 }
 
-// Thank-you appears immediately and remains visible,
-// even if Safari cannot confirm the Sheets response.
 $("#requestPhotos").onclick=async()=>{
  if(requestPending)return;
 
