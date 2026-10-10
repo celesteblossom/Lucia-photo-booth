@@ -5,51 +5,236 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Lucia Photo Booth V7.2</title>
+<title>Lucia Photo Booth V7.3</title>
+
 <style>
-:root{--pink:#efd1d3;--sage:#b9c5ad;--ink:#4c3d3a;--bg:#fff9f7}
+:root{
+ --pink:#efd1d3;
+ --sage:#b9c5ad;
+ --ink:#4c3d3a;
+ --bg:#fff9f7;
+}
+
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-.screen{display:none;min-height:100vh;padding:24px}
-.screen.on{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px}
-button{font:inherit;font-weight:700;border:0;border-radius:18px;padding:15px 22px;background:var(--pink);color:var(--ink)}
+
+body{
+ margin:0;
+ background:var(--bg);
+ color:var(--ink);
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+.screen{
+ display:none;
+ min-height:100vh;
+ padding:24px;
+}
+
+.screen.on{
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ justify-content:center;
+ gap:18px;
+}
+
+button{
+ font:inherit;
+ font-weight:700;
+ border:0;
+ border-radius:18px;
+ padding:15px 22px;
+ background:var(--pink);
+ color:var(--ink);
+ cursor:pointer;
+}
+
 button:disabled{opacity:.55}
 button.alt{background:var(--sage)}
-button.ghost{background:#fff;border:1px solid #dbcaca}
-.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;width:min(100%,1000px)}
-.card{background:#fff;padding:12px;border-radius:22px;text-align:center}
-.card img{width:100%;aspect-ratio:2/3;object-fit:contain;background:#f3eeee;border-radius:14px}
-video{width:min(92vw,620px);aspect-ratio:4/3;max-height:68vh;object-fit:cover;border-radius:24px;background:#111;transform:scaleX(-1)}
-#flash{position:absolute;inset:0;background:white;opacity:0;pointer-events:none;transition:opacity .18s}
-#flash.pop{opacity:.92;transition:none}
-#count{position:absolute;font-size:22vw;font-weight:900;color:white;text-shadow:0 3px 22px #0008}
+button.ghost{
+ background:#fff;
+ border:1px solid #dbcaca;
+}
+
+.row{
+ display:flex;
+ gap:10px;
+ flex-wrap:wrap;
+ justify-content:center;
+}
+
+.grid{
+ display:grid;
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:16px;
+ width:min(100%,1000px);
+}
+
+.card{
+ background:#fff;
+ padding:12px;
+ border-radius:22px;
+ text-align:center;
+}
+
+.card img{
+ width:100%;
+ aspect-ratio:2/3;
+ object-fit:contain;
+ background:#f3eeee;
+ border-radius:14px;
+}
+
+video{
+ width:min(92vw,620px);
+ aspect-ratio:4/3;
+ max-height:68vh;
+ object-fit:cover;
+ border-radius:24px;
+ background:#111;
+ transform:scaleX(-1);
+}
+
+#flash{
+ position:absolute;
+ inset:0;
+ background:white;
+ opacity:0;
+ pointer-events:none;
+ transition:opacity .18s;
+}
+
+#flash.pop{
+ opacity:.92;
+ transition:none;
+}
+
+#count{
+ position:absolute;
+ font-size:22vw;
+ font-weight:900;
+ color:white;
+ text-shadow:0 3px 22px #0008;
+}
+
 .editor{width:min(100%,900px)}
-.stage{position:relative;display:inline-block;max-width:100%;touch-action:none}
-.stage>img{display:block;max-width:100%;max-height:62vh}
-.slot{position:absolute;border:3px dashed #fff;background:#ffffff30;box-shadow:0 0 0 2px #9b7373;touch-action:none}
-.slot b{position:absolute;left:4px;top:4px;background:#fff;padding:2px 6px;border-radius:8px}
-.handle{position:absolute;width:24px;height:24px;right:-12px;bottom:-12px;border-radius:50%;background:var(--pink);border:2px solid white}
-#final{max-width:92vw;max-height:68vh;border-radius:16px}
-.hint{font-size:13px;opacity:.72;text-align:center}
-.top{position:absolute;right:14px;top:14px}
+
+.stage{
+ position:relative;
+ display:inline-block;
+ max-width:100%;
+ touch-action:none;
+}
+
+.stage>img{
+ display:block;
+ max-width:100%;
+ max-height:62vh;
+}
+
+.slot{
+ position:absolute;
+ border:3px dashed #fff;
+ background:#ffffff30;
+ box-shadow:0 0 0 2px #9b7373;
+ touch-action:none;
+}
+
+.slot b{
+ position:absolute;
+ left:4px;
+ top:4px;
+ background:#fff;
+ padding:2px 6px;
+ border-radius:8px;
+}
+
+.handle{
+ position:absolute;
+ width:24px;
+ height:24px;
+ right:-12px;
+ bottom:-12px;
+ border-radius:50%;
+ background:var(--pink);
+ border:2px solid white;
+}
+
+#final{
+ max-width:92vw;
+ max-height:68vh;
+ border-radius:16px;
+}
+
+.hint{
+ font-size:13px;
+ opacity:.72;
+ text-align:center;
+}
+
+.top{
+ position:absolute;
+ right:14px;
+ top:14px;
+}
+
 input[type=file]{max-width:100%}
-input[type=tel]{font:inherit;font-size:18px;padding:14px;border:1px solid #d8b9bd;border-radius:14px;max-width:100%;width:290px}
-.panel{background:white;border-radius:20px;padding:18px;width:min(92vw,540px);text-align:center}
-.notice{font-size:14px;line-height:1.5}
+
+input[type=tel]{
+ font:inherit;
+ font-size:18px;
+ padding:14px;
+ border:1px solid #d8b9bd;
+ border-radius:14px;
+ max-width:100%;
+ width:290px;
+}
+
+.panel{
+ background:white;
+ border-radius:20px;
+ padding:18px;
+ width:min(92vw,540px);
+ text-align:center;
+}
+
+.notice{
+ font-size:14px;
+ line-height:1.5;
+}
+
 .good{color:#28693d}
 .bad{color:#a03434}
 .mini{font-size:13px}
-#requestStatus{min-height:3em;font-weight:600}
+
+#requestStatus{
+ min-height:3em;
+ font-weight:600;
+}
+
+#backupStatus{
+ text-align:center;
+ max-width:520px;
+ font-size:13px;
+}
+
 @media(max-width:700px){
-.grid{grid-template-columns:1fr}
-.card{display:grid;grid-template-columns:105px 1fr;align-items:center;gap:12px}
+ .grid{grid-template-columns:1fr}
+ .card{
+  display:grid;
+  grid-template-columns:105px 1fr;
+  align-items:center;
+  gap:12px;
+ }
 }
 </style>
 </head>
+
 <body>
 
-<button id="setup" class="ghost top">⚙︎ Setup</button>
+<button id="setup" class="ghost top">
+⚙︎ Setup
+</button>
 
 <section id="home" class="screen on">
 <h1>Lucia Ximena's Photo Booth</h1>
@@ -59,44 +244,57 @@ input[type=tel]{font:inherit;font-size:18px;padding:14px;border:1px solid #d8b9b
 
 <section id="cam" class="screen">
 <h2 id="status">Get ready!</h2>
+
 <div style="position:relative">
-<video id="video" autoplay playsinline muted></video>
-<div id="flash"></div>
-<div id="count"></div>
+ <video id="video" autoplay playsinline muted></video>
+ <div id="flash"></div>
+ <div id="count"></div>
 </div>
+
 <div class="row">
-<button id="start">Start Photo Sequence</button>
-<button id="back" class="ghost">Back</button>
+ <button id="start">Start Photo Sequence</button>
+ <button id="back" class="ghost">Back</button>
 </div>
-<p class="hint">One tap takes all three photos automatically.</p>
+
+<p class="hint">
+One tap takes all three photos automatically.
+</p>
 </section>
 
 <section id="done" class="screen">
 <h2>Your Photos Are Ready! ✨</h2>
-<img id="final">
+
+<img id="final" alt="Your completed photo booth picture">
 
 <p class="notice" style="text-align:center;max-width:520px">
 Thank you for celebrating with Lucia! Tap the button below,
 select Messages, and send your photos to your own phone number.
 </p>
 
-<p id="backupStatus" class="notice" role="status" style="text-align:center;max-width:520px"></p>
+<p id="backupStatus" class="notice" role="status"></p>
+
 <div class="row">
-<button id="share">📱 Send Me My Photos</button>
-<button id="reset" class="ghost">New Session</button>
+ <button id="share">📱 Send Me My Photos</button>
+ <button id="reset" class="ghost">New Session</button>
 </div>
 
 <div class="panel">
 <h3>Trouble Sending Your Photos? 💌</h3>
+
 <p class="notice">
 Please try the <strong>Send Me My Photos</strong> button first.
 If your photos aren't going through, enter your phone number below
 and we'll send them to you after the celebration.
 </p>
 
-<input id="guestPhone" type="tel" inputmode="tel"
-autocomplete="tel" placeholder="(555) 123-4567"
-aria-label="Phone number">
+<input
+ id="guestPhone"
+ type="tel"
+ inputmode="tel"
+ autocomplete="tel"
+ placeholder="(555) 123-4567"
+ aria-label="Phone number"
+>
 
 <button id="requestPhotos" style="margin-top:14px">
 Receive My Photos Later
@@ -111,52 +309,101 @@ Receive My Photos Later
 
 <section id="admin" class="screen">
 <div class="editor">
+
 <h2>Template Setup</h2>
-<p class="hint">Choose a template, upload its background, then drag and resize the three photo boxes.</p>
+
+<p class="hint">
+Choose a template, upload its background, then drag and resize
+the three photo boxes.
+</p>
 
 <div class="row">
-<button data-ti="0">Template 1</button>
-<button data-ti="1">Template 2</button>
-<button data-ti="2">Template 3</button>
+ <button data-ti="0">Template 1</button>
+ <button data-ti="1">Template 2</button>
+ <button data-ti="2">Template 3</button>
 </div>
 
-<label>Template name <input id="tname"></label>
+<label>
+ Template name
+ <input id="tname">
+</label>
+
 <br>
-<label>Upload background <input id="upload" type="file" accept="image/*"></label>
+
+<label>
+ Upload background
+ <input id="upload" type="file" accept="image/*">
+</label>
+
 <br><br>
 
 <div id="stage" class="stage">
-<img id="bg">
-<div class="slot" data-s="0"><b>1</b><i class="handle"></i></div>
-<div class="slot" data-s="1"><b>2</b><i class="handle"></i></div>
-<div class="slot" data-s="2"><b>3</b><i class="handle"></i></div>
+ <img id="bg">
+ <div class="slot" data-s="0">
+  <b>1</b><i class="handle"></i>
+ </div>
+ <div class="slot" data-s="1">
+  <b>2</b><i class="handle"></i>
+ </div>
+ <div class="slot" data-s="2">
+  <b>3</b><i class="handle"></i>
+ </div>
 </div>
 
 <div class="panel" style="margin:16px 0">
 <h3>Private Google Drive backup</h3>
-<p class="mini">Paste your deployed Google Apps Script Web App URL.</p>
-<input id="scriptUrl" type="url"
-placeholder="https://script.google.com/macros/s/.../exec"
-style="width:100%;padding:12px">
-<button id="saveConnection" class="alt">Save Backup Connection</button>
+
+<p class="mini">
+Paste your deployed Google Apps Script Web App URL.
+</p>
+
+<input
+ id="scriptUrl"
+ type="url"
+ placeholder="https://script.google.com/macros/s/.../exec"
+ style="width:100%;padding:12px"
+>
+
+<button id="saveConnection" class="alt">
+Save Backup Connection
+</button>
+
 <p id="connectionStatus" class="mini"></p>
-<p class="mini">The photo screen will show whether the Drive backup succeeded or failed.</p>
+
+<p class="mini">
+V7.3 creates the finished photo at a controlled resolution
+before sending it to Google Drive.
+</p>
 </div>
 
 <div class="row">
-<button id="save">Save Template</button>
-<button id="adminDone" class="ghost">Done</button>
+ <button id="save">Save Template</button>
+ <button id="adminDone" class="ghost">Done</button>
 </div>
 
-<p class="hint">Drag a box to move it. Drag the pink circle to resize it.</p>
+<p class="hint">
+Drag a box to move it. Drag the pink circle to resize it.
+</p>
+
 </div>
 </section>
 
 <canvas id="canvas" hidden></canvas>
 
 <script>
+"use strict";
+
 const $=q=>document.querySelector(q);
 const $$=q=>[...document.querySelectorAll(q)];
+
+const TEMPLATE_KEY="luciaPB2";
+const ENDPOINT_KEY="luciaPB6_endpoint";
+
+// V7.3:
+// Limit the longest side of the COMPOSITION canvas.
+// This happens before adding the photos, not afterward.
+const MAX_OUTPUT_SIDE=2000;
+const OUTPUT_QUALITY=0.85;
 
 const blank=()=>({
  name:"Template",
@@ -169,55 +416,92 @@ const blank=()=>({
 });
 
 let T;
+
 try{
- T=JSON.parse(localStorage.getItem("luciaPB2"))||
+ T=JSON.parse(localStorage.getItem(TEMPLATE_KEY))||
  [blank(),blank(),blank()];
 }catch(e){
  T=[blank(),blank(),blank()];
 }
 
+if(!Array.isArray(T)){
+ T=[blank(),blank(),blank()];
+}
+
+while(T.length<3){
+ T.push(blank());
+}
+
+T=T.slice(0,3);
+
 T.forEach((t,i)=>{
- if(t.name==="Template")t.name=`Template ${i+1}`;
+ if(!t.name||t.name==="Template"){
+  t.name=`Template ${i+1}`;
+ }
+ if(!Array.isArray(t.slots)||t.slots.length!==3){
+  t.slots=blank().slots;
+ }
 });
 
-let chosen=0,edit=0,photos=[],stream=null,busy=false;
-let currentPhotoId="",backupPending=false;
+let chosen=0;
+let edit=0;
+let photos=[];
+let stream=null;
+let busy=false;
+
+let currentPhotoId="";
+let backupPending=false;
 let requestPending=false;
 
+// The same completed JPEG is used for both
+// Messages and Google Drive.
+let finishedPhotoData="";
+let finishedPhotoBlob=null;
+
 function show(id){
- $$(".screen").forEach(x=>
-  x.classList.toggle("on",x.id===id)
- );
+ $$(".screen").forEach(el=>{
+  el.classList.toggle("on",el.id===id);
+ });
 }
 
 function home(){
- let c=$("#cards");
- c.innerHTML="";
+ const container=$("#cards");
+ container.innerHTML="";
 
  T.forEach((t,i)=>{
-  let d=document.createElement("div");
-  d.className="card";
+  const card=document.createElement("div");
+  card.className="card";
 
-  d.innerHTML=`
-   ${t.src
-    ? `<img src="${t.src}">`
-    : `<div style="aspect-ratio:2/3;display:grid;place-items:center;background:#f3eeee;border-radius:14px">No design yet</div>`
-   }
+  const preview=t.src
+   ? `<img src="${t.src}" alt="Template ${i+1}">`
+   : `<div style="aspect-ratio:2/3;display:grid;place-items:center;background:#f3eeee;border-radius:14px">No design yet</div>`;
+
+  card.innerHTML=`
+   ${preview}
    <div>
-    <h3>${t.name}</h3>
+    <h3></h3>
     <button ${t.src?"":"disabled"}>Choose</button>
    </div>
   `;
 
-  d.querySelector("button").onclick=()=>openCam(i);
-  c.appendChild(d);
+  card.querySelector("h3").textContent=t.name;
+
+  card.querySelector("button").onclick=()=>{
+   openCam(i);
+  };
+
+  container.appendChild(card);
  });
 }
 
 async function openCam(i){
  chosen=i;
  photos=[];
+ finishedPhotoData="";
+ finishedPhotoBlob=null;
+
  show("cam");
+
  $("#start").disabled=false;
  $("#status").textContent="Get ready!";
 
@@ -236,20 +520,25 @@ async function openCam(i){
   await $("#video").play();
 
  }catch(e){
+  console.error("Camera error:",e);
+
   $("#status").textContent=
    "Camera could not start. Open the HTTPS website in Safari and allow Camera access.";
+
   $("#start").disabled=true;
  }
 }
 
 function stop(){
  if(stream){
-  stream.getTracks().forEach(x=>x.stop());
+  stream.getTracks().forEach(track=>track.stop());
   stream=null;
  }
 }
 
-const wait=n=>new Promise(r=>setTimeout(r,n));
+const wait=ms=>new Promise(resolve=>{
+ setTimeout(resolve,ms);
+});
 
 async function sequence(){
  if(busy)return;
@@ -268,6 +557,7 @@ async function sequence(){
 
    $("#count").textContent="";
    await wait(120);
+
    capture();
 
    $("#flash").classList.add("pop");
@@ -279,12 +569,22 @@ async function sequence(){
   }
 
   stop();
+
   await compose();
+
   show("done");
+
+  // This is intentionally not awaited.
+  // Guests can share their photo while
+  // the Google Drive backup runs.
   startBackup();
 
  }catch(e){
-  $("#status").textContent="Photo error: "+e.message;
+  console.error("Photo sequence error:",e);
+
+  $("#status").textContent=
+   "Photo error: "+e.message;
+
   $("#start").disabled=false;
  }finally{
   busy=false;
@@ -292,128 +592,282 @@ async function sequence(){
 }
 
 function capture(){
- let v=$("#video");
+ const video=$("#video");
 
- if(!v.videoWidth||!v.videoHeight)
+ if(!video.videoWidth||!video.videoHeight){
   throw Error("Camera not ready");
+ }
 
- let c=document.createElement("canvas");
- let vw=v.videoWidth,vh=v.videoHeight;
- let displayRatio=v.clientWidth/v.clientHeight;
- let sourceRatio=vw/vh;
- let sx=0,sy=0,sw=vw,sh=vh;
+ const canvas=document.createElement("canvas");
+
+ const vw=video.videoWidth;
+ const vh=video.videoHeight;
+
+ const displayRatio=
+  video.clientWidth/video.clientHeight;
+
+ const sourceRatio=vw/vh;
+
+ let sx=0;
+ let sy=0;
+ let sw=vw;
+ let sh=vh;
 
  if(sourceRatio>displayRatio){
   sw=vh*displayRatio;
   sx=(vw-sw)/2;
  }else{
   sh=vw/displayRatio;
-  sy=(vh-sw)/2;
+  sy=(vh-sh)/2;
  }
 
- c.width=Math.round(sw);
- c.height=Math.round(sh);
+ canvas.width=Math.round(sw);
+ canvas.height=Math.round(sh);
 
- let x=c.getContext("2d");
- x.translate(c.width,0);
- x.scale(-1,1);
- x.drawImage(v,sx,sy,sw,sh,0,0,c.width,c.height);
+ const ctx=canvas.getContext("2d");
 
- photos.push(c.toDataURL("image/jpeg",.94));
+ if(!ctx){
+  throw Error("Unable to create camera canvas");
+ }
+
+ ctx.translate(canvas.width,0);
+ ctx.scale(-1,1);
+
+ ctx.drawImage(
+  video,
+  sx,sy,sw,sh,
+  0,0,canvas.width,canvas.height
+ );
+
+ photos.push(
+  canvas.toDataURL("image/jpeg",0.94)
+ );
 }
 
-const load=s=>new Promise((r,j)=>{
- let i=new Image();
- i.onload=()=>r(i);
- i.onerror=j;
- i.src=s;
-});
+function load(src){
+ return new Promise((resolve,reject)=>{
+  const image=new Image();
+
+  image.onload=()=>resolve(image);
+
+  image.onerror=()=>{
+   reject(Error("Image failed to load"));
+  };
+
+  image.src=src;
+ });
+}
 
 function cover(ctx,img,x,y,w,h){
- let r=Math.max(w/img.width,h/img.height);
- let sw=w/r,sh=h/r;
+ const ratio=Math.max(
+  w/img.width,
+  h/img.height
+ );
+
+ const sw=w/ratio;
+ const sh=h/ratio;
 
  ctx.drawImage(
   img,
   (img.width-sw)/2,
   (img.height-sh)/2,
-  sw,sh,x,y,w,h
+  sw,sh,
+  x,y,w,h
  );
 }
 
+// Converts a canvas to a JPEG Blob.
+// Avoids creating an additional full-size
+// Base64 copy during image composition.
+function canvasToBlob(canvas,quality){
+ return new Promise((resolve,reject)=>{
+  canvas.toBlob(blob=>{
+   if(blob&&blob.size>0){
+    resolve(blob);
+   }else{
+    reject(Error("JPEG export failed"));
+   }
+  },"image/jpeg",quality);
+ });
+}
+
+function blobToDataURL(blob){
+ return new Promise((resolve,reject)=>{
+  const reader=new FileReader();
+
+  reader.onload=()=>resolve(reader.result);
+  reader.onerror=()=>{
+   reject(Error("Unable to read finished JPEG"));
+  };
+
+  reader.readAsDataURL(blob);
+ });
+}
+
+// V7.3 MAIN FIX:
+// Scale the background canvas BEFORE
+// adding the three captured photos.
 async function compose(){
- let t=T[chosen];
- let bg=await load(t.src);
- let c=$("#canvas");
- let x=c.getContext("2d");
+ const template=T[chosen];
 
- c.width=bg.naturalWidth;
- c.height=bg.naturalHeight;
+ if(!template.src){
+  throw Error("Template is missing");
+ }
 
- x.clearRect(0,0,c.width,c.height);
- x.drawImage(bg,0,0,c.width,c.height);
+ if(photos.length!==3){
+  throw Error("Three photos are required");
+ }
 
+ const background=await load(template.src);
+
+ const originalWidth=background.naturalWidth;
+ const originalHeight=background.naturalHeight;
+
+ if(!originalWidth||!originalHeight){
+  throw Error("Invalid template dimensions");
+ }
+
+ const longestSide=Math.max(
+  originalWidth,
+  originalHeight
+ );
+
+ const scale=Math.min(
+  1,
+  MAX_OUTPUT_SIDE/longestSide
+ );
+
+ const outputWidth=Math.max(
+  1,
+  Math.round(originalWidth*scale)
+ );
+
+ const outputHeight=Math.max(
+  1,
+  Math.round(originalHeight*scale)
+ );
+
+ const canvas=$("#canvas");
+
+ // Setting the canvas dimensions resets
+ // its drawing context and ensures the
+ // composition uses the reduced size.
+ canvas.width=outputWidth;
+ canvas.height=outputHeight;
+
+ const ctx=canvas.getContext("2d");
+
+ if(!ctx){
+  throw Error("Unable to create composition canvas");
+ }
+
+ ctx.imageSmoothingEnabled=true;
+ ctx.imageSmoothingQuality="high";
+
+ ctx.clearRect(
+  0,0,outputWidth,outputHeight
+ );
+
+ // Draw the complete template at the
+ // final resolution, not its original size.
+ ctx.drawImage(
+  background,
+  0,0,
+  outputWidth,outputHeight
+ );
+
+ // Slot positions remain proportional
+ // to the original template.
  for(let i=0;i<3;i++){
-  let im=await load(photos[i]);
-  let s=t.slots[i];
+  const image=await load(photos[i]);
+  const slot=template.slots[i];
 
   cover(
-   x,im,
-   s.x*c.width,
-   s.y*c.height,
-   s.w*c.width,
-   s.h*c.height
+   ctx,
+   image,
+   slot.x*outputWidth,
+   slot.y*outputHeight,
+   slot.w*outputWidth,
+   slot.h*outputHeight
   );
  }
 
- const finished=$("#final");
- finished.src=c.toDataURL("image/jpeg",.95);
- if(!finished.complete || !finished.naturalWidth){
-  await new Promise((resolve,reject)=>{
-   finished.onload=()=>{finished.onload=null;finished.onerror=null;resolve()};
-   finished.onerror=()=>{finished.onload=null;finished.onerror=null;reject(Error("Finished image failed to load"))};
-  });
+ // Create the finished JPEG only once.
+ const blob=await canvasToBlob(
+  canvas,
+  OUTPUT_QUALITY
+ );
+
+ if(blob.size<5000){
+  throw Error("Finished photo is unexpectedly small");
  }
+
+ finishedPhotoBlob=blob;
+ finishedPhotoData=await blobToDataURL(blob);
+
+ const preview=$("#final");
+ preview.src=finishedPhotoData;
+
+ // Confirm Safari can decode the image.
+ const decoded=await load(finishedPhotoData);
+
+ if(!decoded.naturalWidth||!decoded.naturalHeight){
+  throw Error("Finished photo could not be decoded");
+ }
+
+ console.log("V7.3 photo composition:",{
+  originalWidth,
+  originalHeight,
+  outputWidth,
+  outputHeight,
+  jpegBytes:blob.size
+ });
 }
 
-const getEndpoint=()=>
- localStorage.getItem("luciaPB6_endpoint")||"";
+const getEndpoint=()=>{
+ return localStorage.getItem(ENDPOINT_KEY)||"";
+};
 
 function newId(){
- return "LX-"+Date.now().toString(36)+"-"+
- Math.random().toString(36).slice(2,8);
+ return "LX-"+
+  Date.now().toString(36)+"-"+
+  Math.random().toString(36).slice(2,8);
 }
 
+// Uses the exact JPEG already created
+// for the finished preview and Messages.
 function backupImage(){
- const finished = $("#final");
- if (!finished.complete || !finished.naturalWidth) {
-  throw new Error("Finished photo is not ready.");
+ if(!finishedPhotoData){
+  throw Error("Finished photo is not ready");
  }
- const maxWidth = 1600;
- const scale = Math.min(1, maxWidth / finished.naturalWidth);
- const canvas = document.createElement("canvas");
- canvas.width = Math.round(finished.naturalWidth * scale);
- canvas.height = Math.round(finished.naturalHeight * scale);
- const ctx = canvas.getContext("2d");
- ctx.fillStyle = "#ffffff";
- ctx.fillRect(0, 0, canvas.width, canvas.height);
- ctx.drawImage(finished, 0, 0, canvas.width, canvas.height);
- return canvas.toDataURL("image/jpeg", 0.82).split(",")[1];
+
+ const prefix="data:image/jpeg;base64,";
+
+ if(!finishedPhotoData.startsWith(prefix)){
+  throw Error("Invalid finished JPEG format");
+ }
+
+ return finishedPhotoData.slice(prefix.length);
 }
 
-function sendToDrive(payload,waitMs=45000){
+function sendToDrive(payload,waitMs=60000){
  return new Promise((resolve,reject)=>{
-  let url=getEndpoint();
+  const url=getEndpoint();
 
-  if(!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec(?:\?.*)?$/.test(url)){
-   reject(Error("Google Drive backup is not connected."));
+  if(
+   !/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec(?:\?.*)?$/.test(url)
+  ){
+   reject(Error("Google Drive backup is not connected"));
    return;
   }
 
-  let id=newId();
-  let iframe=document.createElement("iframe");
-  let form=document.createElement("form");
+  const id=newId();
+
+  const iframe=document.createElement("iframe");
+  const form=document.createElement("form");
+
   let timeout;
+  let settled=false;
 
   iframe.name="lucia_upload_"+id;
   iframe.style.display="none";
@@ -422,58 +876,96 @@ function sendToDrive(payload,waitMs=45000){
   form.action=url;
   form.target=iframe.name;
   form.style.display="none";
+  form.acceptCharset="UTF-8";
 
-  let body={...payload,requestId:id};
+  const body={
+   ...payload,
+   requestId:id
+  };
 
-  for(let [key,value] of Object.entries(body)){
-   let input=document.createElement("input");
+  for(const [key,value] of Object.entries(body)){
+   const input=document.createElement("input");
+
+   input.type="hidden";
    input.name=key;
    input.value=String(value);
+
    form.appendChild(input);
   }
 
   function cleanup(){
    clearTimeout(timeout);
-   window.removeEventListener("message",received);
+   window.removeEventListener(
+    "message",
+    received
+   );
    iframe.remove();
    form.remove();
   }
 
-  function received(e){
-   let d=e.data;
+  function finish(error,data){
+   if(settled)return;
+   settled=true;
+   cleanup();
 
-   if(!d||d.app!=="lucia-v6"||d.requestId!==id)
+   if(error){
+    reject(error);
+   }else{
+    resolve(data);
+   }
+  }
+
+  function received(event){
+   const data=event.data;
+
+   if(
+    !data||
+    data.app!=="lucia-v6"||
+    data.requestId!==id
+   ){
     return;
+   }
 
-   let origin=e.origin||"";
+   const origin=event.origin||"";
 
    if(
     origin!=="null" &&
     origin!=="https://script.google.com" &&
     !origin.endsWith(".googleusercontent.com") &&
     !origin.endsWith(".google.com")
-   )return;
+   ){
+    return;
+   }
 
-   cleanup();
-
-   d.ok
-    ? resolve(d)
-    : reject(Error(d.error||"Request failed"));
+   if(data.ok){
+    finish(null,data);
+   }else{
+    finish(
+     Error(data.error||"Google Drive request failed")
+    );
+   }
   }
 
-  window.addEventListener("message",received);
-  document.body.append(iframe,form);
+  window.addEventListener(
+   "message",
+   received
+  );
+
+  document.body.append(
+   iframe,
+   form
+  );
 
   timeout=setTimeout(()=>{
-   cleanup();
-   reject(Error("Request confirmation timed out."));
+   finish(
+    Error("Request confirmation timed out")
+   );
   },waitMs);
 
   try{
    form.submit();
-  }catch(e){
-   cleanup();
-   reject(e);
+  }catch(error){
+   finish(error);
   }
  });
 }
@@ -481,25 +973,59 @@ function sendToDrive(payload,waitMs=45000){
 async function startBackup(){
  currentPhotoId=newId();
  backupPending=true;
+
  const status=$("#backupStatus");
+
  status.className="notice";
- status.textContent="⏳ Saving a backup to Google Drive… Please keep this page open.";
+ status.textContent=
+  "⏳ Saving a backup to Google Drive… Please keep this page open.";
+
  $("#requestStatus").textContent="";
  $("#helpStatus").textContent="";
  $("#guestPhone").value="";
+
  try{
+  if(!finishedPhotoBlob){
+   throw Error("Finished JPEG is missing");
+  }
+
+  const bytes=finishedPhotoBlob.size;
+
+  // Match the size limits in Code.gs.
+  if(bytes<5000||bytes>9000000){
+   throw Error(
+    "Image size outside Google Drive limits: "+
+    Math.round(bytes/1024)+" KB"
+   );
+  }
+
   const encoded=backupImage();
-  const response=await sendToDrive({
+
+  await sendToDrive({
    action:"photo",
    photoId:currentPhotoId,
    image:encoded
   },60000);
+
   status.className="notice good";
-  status.textContent="✓ Google Drive backup confirmed. Photo ID: "+currentPhotoId;
- }catch(e){
-  console.error("Google Drive backup failed:",e);
+  status.textContent=
+   "✓ Google Drive backup confirmed. Photo ID: "+
+   currentPhotoId;
+
+ }catch(error){
+  console.error(
+   "Google Drive backup problem:",
+   error
+  );
+
   status.className="notice bad";
-  status.textContent="⚠️ Google Drive backup not confirmed ("+e.message+"). The Messages photo is still available. Photo ID: "+currentPhotoId;
+
+  status.textContent=
+   "⚠️ Google Drive backup not confirmed ("+
+   error.message+
+   "). Your photo is still available through Messages. Photo ID: "+
+   currentPhotoId;
+
  }finally{
   backupPending=false;
  }
@@ -509,8 +1035,10 @@ $("#requestPhotos").onclick=async()=>{
  if(requestPending)return;
 
  const status=$("#requestStatus");
- const btn=$("#requestPhotos");
- let phone=$("#guestPhone").value.replace(/\D/g,"");
+ const button=$("#requestPhotos");
+
+ const phone=$("#guestPhone")
+  .value.replace(/\D/g,"");
 
  if(
   phone.length!==10 &&
@@ -529,9 +1057,17 @@ $("#requestPhotos").onclick=async()=>{
   return;
  }
 
- requestPending=true;
- btn.disabled=true;
+ if(!currentPhotoId){
+  status.className="notice bad";
+  status.textContent=
+   "Photo ID is not ready. Please ask the host for help.";
+  return;
+ }
 
+ requestPending=true;
+ button.disabled=true;
+
+ // Keep the approved immediate message.
  status.className="notice good";
  status.textContent=
   "💗 Thank you for submitting! We'll send your photos to you in the next couple of days. Thank you for celebrating with Lucia! ✨";
@@ -545,20 +1081,27 @@ $("#requestPhotos").onclick=async()=>{
 
   $("#guestPhone").value="";
 
- }catch(e){
+ }catch(error){
   console.warn(
    "Photo request confirmation unavailable:",
-   e.message
+   error.message
   );
  }finally{
   requestPending=false;
-  btn.disabled=false;
+  button.disabled=false;
  }
 };
 
 $("#help").onclick=async()=>{
- let el=$("#helpStatus");
- el.textContent="Sending help alert…";
+ const status=$("#helpStatus");
+
+ status.textContent="Sending help alert…";
+
+ if(!currentPhotoId){
+  status.textContent=
+   "Please ask the host directly for help.";
+  return;
+ }
 
  try{
   await sendToDrive({
@@ -566,31 +1109,36 @@ $("#help").onclick=async()=>{
    photoId:currentPhotoId
   },45000);
 
-  el.textContent=
+  status.textContent=
    "✓ Help request recorded! Please also wave to the host if you need immediate assistance.";
 
- }catch(e){
-  el.textContent=
+ }catch(error){
+  console.warn("Help request:",error.message);
+
+  status.textContent=
    "Your help request may have been recorded. Please ask the host directly if you need immediate assistance.";
  }
 };
 
 $("#saveConnection").onclick=()=>{
- let u=$("#scriptUrl").value.trim();
+ const url=$("#scriptUrl").value.trim();
 
  if(
-  u &&
-  !/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec(?:\?.*)?$/.test(u)
+  url &&
+  !/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec(?:\?.*)?$/.test(url)
  ){
   $("#connectionStatus").textContent=
    "Please paste the deployed Apps Script /exec URL.";
   return;
  }
 
- localStorage.setItem("luciaPB6_endpoint",u);
+ localStorage.setItem(
+  ENDPOINT_KEY,
+  url
+ );
 
  $("#connectionStatus").textContent=
-  u
+  url
    ? "Connection URL saved. Take a test photo to verify uploads."
    : "Connection removed.";
 };
@@ -610,68 +1158,87 @@ $("#reset").onclick=()=>{
   !confirm(
    "The photo is still uploading. Leaving now may interrupt the backup. Continue?"
   )
- )return;
+ ){
+  return;
+ }
 
  photos=[];
+ finishedPhotoData="";
+ finishedPhotoBlob=null;
+
  $("#backupStatus").textContent="";
+
  home();
  show("home");
 };
 
-$("#share").onclick=()=>$("#canvas").toBlob(async b=>{
- if(!b){
+// Share the same JPEG used for the Drive
+// backup, rather than exporting the
+// composition canvas a second time.
+$("#share").onclick=async()=>{
+ if(!finishedPhotoBlob){
   alert("Photo is not ready yet.");
   return;
  }
 
- let f=new File(
-  [b],
+ const file=new File(
+  [finishedPhotoBlob],
   "lucia-photo-booth.jpg",
   {type:"image/jpeg"}
  );
 
  if(
   navigator.canShare &&
-  navigator.canShare({files:[f]})
+  navigator.canShare({files:[file]})
  ){
   try{
    await navigator.share({
-    files:[f],
+    files:[file],
     title:"Lucia Ximena Photo Booth"
    });
-  }catch(e){
-   if(e.name!=="AbortError")
-    alert("Unable to open sharing. Ask the host for help.");
+  }catch(error){
+   if(error.name!=="AbortError"){
+    console.error("Sharing error:",error);
+
+    alert(
+     "Unable to open sharing. Ask the host for help."
+    );
+   }
   }
  }else{
   alert(
    "This device cannot share the photo directly. Ask the host for help."
   );
  }
-},"image/jpeg",.95);
+};
 
 function loadEditor(){
- let t=T[edit];
- $("#tname").value=t.name;
- $("#bg").src=t.src||"";
+ const template=T[edit];
+
+ $("#tname").value=template.name;
+ $("#bg").src=template.src||"";
+
  positionSlots();
 }
 
 function positionSlots(){
- let t=T[edit];
+ const template=T[edit];
 
- $$(".slot").forEach((el,i)=>{
-  let s=t.slots[i];
-  el.style.left=s.x*100+"%";
-  el.style.top=s.y*100+"%";
-  el.style.width=s.w*100+"%";
-  el.style.height=s.h*100+"%";
+ $$(".slot").forEach((element,i)=>{
+  const slot=template.slots[i];
+
+  element.style.left=slot.x*100+"%";
+  element.style.top=slot.y*100+"%";
+  element.style.width=slot.w*100+"%";
+  element.style.height=slot.h*100+"%";
  });
 }
 
-$$("[data-ti]").forEach(b=>b.onclick=()=>{
- edit=+b.dataset.ti;
- loadEditor();
+$$("[data-ti]").forEach(button=>{
+ button.onclick=()=>{
+  edit=Number(button.dataset.ti);
+  loadEditor();
+ };
 });
 
 $("#setup").onclick=()=>{
@@ -684,87 +1251,134 @@ $("#adminDone").onclick=()=>{
  show("home");
 };
 
-$("#upload").onchange=e=>{
- let f=e.target.files[0];
- if(!f)return;
+$("#upload").onchange=event=>{
+ const file=event.target.files[0];
 
- let r=new FileReader();
+ if(!file)return;
 
- r.onload=()=>{
-  T[edit].src=r.result;
-  $("#bg").src=r.result;
+ const reader=new FileReader();
+
+ reader.onload=()=>{
+  T[edit].src=reader.result;
+  $("#bg").src=reader.result;
   positionSlots();
  };
 
- r.readAsDataURL(f);
+ reader.readAsDataURL(file);
 };
 
-$$(".slot").forEach(el=>{
- let mode=null,sx,sy,start;
+$$(".slot").forEach(element=>{
+ let mode=null;
+ let sx=0;
+ let sy=0;
+ let start=null;
 
- el.addEventListener("pointerdown",e=>{
-  e.preventDefault();
+ element.addEventListener(
+  "pointerdown",
+  event=>{
+   event.preventDefault();
 
-  mode=e.target.classList.contains("handle")
-   ? "resize"
-   : "move";
+   mode=event.target.classList.contains("handle")
+    ? "resize"
+    : "move";
 
-  el.setPointerCapture(e.pointerId);
+   element.setPointerCapture(event.pointerId);
 
-  sx=e.clientX;
-  sy=e.clientY;
+   sx=event.clientX;
+   sy=event.clientY;
 
-  start={...T[edit].slots[+el.dataset.s]};
- });
-
- el.addEventListener("pointermove",e=>{
-  if(!mode)return;
-
-  let r=$("#stage").getBoundingClientRect();
-  let s=T[edit].slots[+el.dataset.s];
-  let dx=(e.clientX-sx)/r.width;
-  let dy=(e.clientY-sy)/r.height;
-
-  if(mode==="move"){
-   s.x=Math.max(
-    0,
-    Math.min(1-start.w,start.x+dx)
-   );
-   s.y=Math.max(
-    0,
-    Math.min(1-start.h,start.y+dy)
-   );
-  }else{
-   s.w=Math.max(
-    .05,
-    Math.min(1-start.x,start.w+dx)
-   );
-   s.h=Math.max(
-    .05,
-    Math.min(1-start.y,start.h+dy)
-   );
+   start={
+    ...T[edit].slots[
+     Number(element.dataset.s)
+    ]
+   };
   }
+ );
 
-  positionSlots();
- });
+ element.addEventListener(
+  "pointermove",
+  event=>{
+   if(!mode)return;
 
- el.addEventListener("pointerup",()=>mode=null);
- el.addEventListener("pointercancel",()=>mode=null);
+   const rect=$("#stage")
+    .getBoundingClientRect();
+
+   if(!rect.width||!rect.height)return;
+
+   const slot=T[edit].slots[
+    Number(element.dataset.s)
+   ];
+
+   const dx=(event.clientX-sx)/rect.width;
+   const dy=(event.clientY-sy)/rect.height;
+
+   if(mode==="move"){
+    slot.x=Math.max(
+     0,
+     Math.min(
+      1-start.w,
+      start.x+dx
+     )
+    );
+
+    slot.y=Math.max(
+     0,
+     Math.min(
+      1-start.h,
+      start.y+dy
+     )
+    );
+   }else{
+    slot.w=Math.max(
+     .05,
+     Math.min(
+      1-start.x,
+      start.w+dx
+     )
+    );
+
+    slot.h=Math.max(
+     .05,
+     Math.min(
+      1-start.y,
+      start.h+dy
+     )
+    );
+   }
+
+   positionSlots();
+  }
+ );
+
+ element.addEventListener(
+  "pointerup",
+  ()=>{
+   mode=null;
+  }
+ );
+
+ element.addEventListener(
+  "pointercancel",
+  ()=>{
+   mode=null;
+  }
+ );
 });
 
 $("#save").onclick=()=>{
  T[edit].name=
-  $("#tname").value.trim()||`Template ${edit+1}`;
+  $("#tname").value.trim()||
+  `Template ${edit+1}`;
 
  try{
   localStorage.setItem(
-   "luciaPB2",
+   TEMPLATE_KEY,
    JSON.stringify(T)
   );
 
   alert("Saved on this iPad/browser.");
 
- }catch(e){
+ }catch(error){
   alert(
    "The template file is too large for browser storage. Export a smaller JPG or PNG and try again."
   );
